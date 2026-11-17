@@ -1,0 +1,28 @@
+[Unit]
+Description=Temperature-based GPU fan control (%i)
+After=nvidia-persistenced.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=exec
+User=root
+Group=root
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 /opt/gpu-fan-control/%i/control.py run --uuid %i --config /etc/gpu-fan-control/%i.json
+ExecStopPost=/usr/bin/python3 /opt/gpu-fan-control/%i/control.py auto --uuid %i
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=20
+KillSignal=SIGTERM
+UMask=0077
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/run/lock
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
